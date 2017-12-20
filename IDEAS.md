@@ -7,4 +7,6 @@
 * Additional level 2 models
 * Additional feature engineering
 * Data cleaning?
-* Model based on a static blacklist (make sure it is approved external data) (see https://www.kaggle.com/c/detecting-insults-in-social-commentary/discussion/2744)
+* Model based on a static blacklist (see https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/discussion/46035 / https://www.kaggle.com/c/detecting-insults-in-social-commentary/discussion/2744 / https://kaggle2.blob.core.windows.net/forum-message-attachments/4810/badwords.txt)
+* Use other external data (in data folder / see https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/discussion/46035)
+* Also use https://conversationai.github.io/wikidetox/testdata/tox-sorted/Wikipedia%20Toxicity%20Sorted%20%28Toxicity%405%5BAlpha%5D%29.html
