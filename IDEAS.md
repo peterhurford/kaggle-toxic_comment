@@ -1,4 +1,5 @@
 * Get mean log loss metric for level 1 and level 2
+* Get and look at feature importance
 * Train models for labels other than toxic only on the subset of data that is labeled toxic
 * Train models on additional data 
 * Add their API as a level 1 model
