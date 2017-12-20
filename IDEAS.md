@@ -7,4 +7,4 @@
 * Additional level 2 models
 * Additional feature engineering
 * Data cleaning?
-* Model based on a static blacklist (make sure it is approved external data)
+* Model based on a static blacklist (make sure it is approved external data) (see https://www.kaggle.com/c/detecting-insults-in-social-commentary/discussion/2744)
