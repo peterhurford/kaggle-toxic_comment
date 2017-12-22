@@ -4,13 +4,19 @@
 * Train models on additional data 
 * Add their API as a level 1 model (https://github.com/conversationai/perspectiveapi/blob/master/api_reference.md - I already have access)
 * Additional level 1 models (VW, XGB, LGB, NN, SVM, LibFM, ExtraTrees, RandomForest)
+  * NB-SVM https://www.kaggle.com/jhoward/nb-svm-strong-linear-baseline-eda-0-052-lb
 * Additional level 2 models
 * Additional feature engineering
 * Data cleaning?
 * Model based on a static blacklist (see https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/discussion/46035 / https://www.kaggle.com/c/detecting-insults-in-social-commentary/discussion/2744 / https://kaggle2.blob.core.windows.net/forum-message-attachments/4810/badwords.txt)
-* Use other external data (in data folder / see https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/discussion/46035)
-* Also use https://conversationai.github.io/wikidetox/testdata/tox-sorted/Wikipedia%20Toxicity%20Sorted%20%28Toxicity%405%5BAlpha%5D%29.html
+* Use other external data
+  * in data folder - see README / see https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/discussion/46035
+    * BE CAREFUL OF LEAKAGE - SEE https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/discussion/46177
+  * Also use https://conversationai.github.io/wikidetox/testdata/tox-sorted/Wikipedia%20Toxicity%20Sorted%20%28Toxicity%405%5BAlpha%5D%29.html
+  * Use data from Kaggle insults competition
 * Sentiment analysis
 * Part of speech analysis
 * Word2Vec, GloVe, etc.
 * Tune model hyperparams
+* Review https://github.com/AloneGu/kaggle_spooky
+* The entire 95M+ Wikipedia discussion corpus is available if we want to do some sort of big data semi-supervised learning
