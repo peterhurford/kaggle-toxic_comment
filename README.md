@@ -6,6 +6,8 @@
 
 ## Rules
 
-1.) Develop in branches
+1.) Develop meaningful model changes in branches
+
 2.) Only test one minimal change at a time
+
 3.) Track improvements with local CV, submit sparingly to further monitor overfitting
