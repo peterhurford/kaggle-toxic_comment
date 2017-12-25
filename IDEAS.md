@@ -14,9 +14,11 @@
     * BE CAREFUL OF LEAKAGE - SEE https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/discussion/46177
   * Also use https://conversationai.github.io/wikidetox/testdata/tox-sorted/Wikipedia%20Toxicity%20Sorted%20%28Toxicity%405%5BAlpha%5D%29.html
   * Use data from Kaggle insults competition
+  * Data and code from https://github.com/t-davidson/hate-speech-and-offensive-language
 * Sentiment analysis
 * Part of speech analysis
 * Word2Vec, GloVe, etc.
 * Tune model hyperparams
 * Review https://github.com/AloneGu/kaggle_spooky
 * The entire 95M+ Wikipedia discussion corpus is available if we want to do some sort of big data semi-supervised learning
+* https://arxiv.org/pdf/1710.07394.pdf
