@@ -6,10 +6,11 @@
 * Improve existing models
   * LR https://www.kaggle.com/thousandvoices/logistic-regression-with-words-and-char-n-grams
   * See https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/discussion/46563
-* Additional level 1 models (VW, XGB, LGB, NN, SVM, LibFM, ExtraTrees, RandomForest)
+* Additional level 1 models (VW, FTLR, FTLR-FM, XGB, LGB, NN, SVM, LibFM, ExtraTrees, RandomForest)
   * NB-SVM https://www.kaggle.com/jhoward/nb-svm-strong-linear-baseline-eda-0-052-lb
   * NNs
     * https://www.kaggle.com/demesgal/lstm-glove-lr-decrease-bn-cv-lb-0-047
+    * https://www.kaggle.com/qqgeogor/keras-lstm-attention-glove840b-lb-0-043/code
     * https://github.com/AloneGu/kaggle_spooky
 * Additional level 2 models
 * Additional feature engineering
@@ -33,3 +34,5 @@
 * Review https://github.com/AloneGu/kaggle_spooky
 * The entire 95M+ Wikipedia discussion corpus is available if we want to do some sort of big data semi-supervised learning
 * https://arxiv.org/pdf/1710.07394.pdf
+* https://dl.acm.org/citation.cfm?id=3052591
+* https://aws.amazon.com/comprehend/?p=tile
