@@ -12,6 +12,7 @@
     * https://www.kaggle.com/demesgal/lstm-glove-lr-decrease-bn-cv-lb-0-047
     * https://www.kaggle.com/qqgeogor/keras-lstm-attention-glove840b-lb-0-043/code
     * https://github.com/AloneGu/kaggle_spooky
+    * https://www.kaggle.com/skrcode/0-29-public-lb-score-beginner-nlp-tutorial
 * Additional level 2 models
 * Additional feature engineering
   * Average length of words
@@ -27,7 +28,7 @@
   * Data and code from https://github.com/t-davidson/hate-speech-and-offensive-language
   * https://cloud.google.com/natural-language/
 * Sentiment analysis
-* Part of speech analysis
+* Part of speech analysis (insult has specific structure)
 * Word2Vec, GloVe, etc.
   * https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/discussion/46736
 * Tune model hyperparams (TFIDF, XGB, LR, NB, etc.)
@@ -36,3 +37,4 @@
 * https://arxiv.org/pdf/1710.07394.pdf
 * https://dl.acm.org/citation.cfm?id=3052591
 * https://aws.amazon.com/comprehend/?p=tile
+* https://github.com/conversationai/unintended-ml-bias-analysis
