@@ -21,7 +21,7 @@ def run_cv_model(label, train, test, post_train, post_test, model_fn, kf):
         for dev_index, val_index in kf.split(post_train, train_y):
             dev_X, val_X = post_train[dev_index], post_train[val_index]
             dev_y, val_y = train_y[dev_index], train_y[val_index]
-            pred_val_y, pred_test_y, model = model_fn(dev_X, dev_y, val_X, val_y, post_test, target)
+            pred_val_y, pred_test_y = model_fn(dev_X, dev_y, val_X, val_y, post_test, target)
             pred_full_test = pred_full_test + pred_test_y
             pred_train[val_index] = pred_val_y
             cv_score = roc_auc_score(val_y, pred_val_y)
