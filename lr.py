@@ -8,7 +8,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 
 from utils import run_cv_model, print_step
-from preprocess import get_data, run_tfidf
+from preprocess import get_data, run_tfidf, clean_text
 
 
 # TFIDF Hyperparams
@@ -67,7 +67,18 @@ def runLR(train_X, train_y, test_X, test_y, test_X2, label):
     model.fit(train_X, train_y)
     pred_test_y = model.predict_proba(test_X)[:, 1]
     pred_test_y2 = model.predict_proba(test_X2)[:, 1]
-    return pred_test_y, pred_test_y2, model
+    return pred_test_y, pred_test_y2
+
+
+# Average both L1 and L2 Penalty with increased regularization
+def runDoubleLR(train_X, train_y, test_X, test_y, test_X2, label):
+    model = LogisticRegression(C=5, penalty='l1')
+    model2 = LogisticRegression(C=5, penalty='l2')
+    model.fit(train_X, train_y)
+    model2.fit(train_X, train_y)
+    pred_test_y = model.predict_proba(test_X)[:, 1] * 0.5 + model2.predict_proba(test_X)[:, 1] * 0.5
+    pred_test_y2 = model.predict_proba(test_X2)[:, 1] * 0.5 + model2.predict_proba(test_X2)[:, 1] * 0.5
+    return pred_test_y, pred_test_y2
 
 
 # NB-LR Model Definition
@@ -84,12 +95,16 @@ def runNBLR(train_X, train_y, test_X, test_y, test_X2, label):
     model.fit(x_nb, train_y)
     pred_test_y = model.predict_proba(test_X.multiply(r))[:, 1]
     pred_test_y2 = model.predict_proba(test_X2.multiply(r))[:, 1]
-    return pred_test_y, pred_test_y2, model
+    return pred_test_y, pred_test_y2
 
 
 print('~~~~~~~~~~~~~~~~~~~')
 print_step('Importing Data')
 train, test = get_data()
+
+print('~~~~~~~~~~~~~~~~~~~')
+print_step('Cleaning')
+train_cleaned, test_cleaned = clean_text(train, test)
 
 print('~~~~~~~~~~~~~~~~~~~~~~~~')
 print_step('Making KFold for CV')
@@ -99,23 +114,25 @@ print('~~~~~~~~~~~~~~~~~~~~~~~~~')
 print_step('Run TFIDF WORD STOP')
 TFIDF_PARAMS_WORD_STOP.update({'train': train, 'test': test})
 post_train, post_test = run_tfidf(**TFIDF_PARAMS_WORD_STOP)
+TFIDF_PARAMS_WORD_STOP.update({'train': train_cleaned, 'test': test_cleaned})
+post_train_cleaned, post_test_cleaned = run_tfidf(**TFIDF_PARAMS_WORD_STOP)
 
 print('~~~~~~~~~~~')
 print_step('Run LR')
 train, test = run_cv_model(label='tfidf_word_stop_lr',
                            train=train,
                            test=test,
-                           post_train=post_train,
-                           post_test=post_test,
-                           model_fn=runLR,
+                           post_train=post_train_cleaned,
+                           post_test=post_test_cleaned,
+                           model_fn=runDoubleLR,
                            kf=kf)
-# Toxic:   0.97071085751838204
-# Severe:  0.9858469322003458
-# Obscene: 0.9834975327437192
-# Threat:  0.98732987354980428
-# Insult:  0.97758018514263978
-# Hate:    0.97315936110261991
-# 0.97968745704291849
+# Toxic:   0.9737196334021132
+# Severe:  0.98396212420271711
+# Obscene: 0.98499225593799911
+# Threat:  0.98840806131681003
+# Insult:  0.9784074399165934
+# Hate:    0.97444998683069495
+# 0.98065658360115471
 
 print('~~~~~~~~~~~~~')
 print_step('Run NBLR')
@@ -175,42 +192,43 @@ train, test = run_cv_model(label='tfidf_word_nostop_nblr',
 
 print('~~~~~~~~~~~~~~~~~~~')
 print_step('Run TFIDF CHAR')
-TFIDF_PARAMS_CHAR.update({'train': train, 'test': test})
-post_train, post_test = run_tfidf(**TFIDF_PARAMS_CHAR)
+TFIDF_PARAMS_CHAR.update({'train': train_cleaned, 'test': test_cleaned})
+post_train_cleaned, post_test_cleaned = run_tfidf(**TFIDF_PARAMS_CHAR)
+
 
 print('~~~~~~~~~~~')
 print_step('Run LR')
 train, test = run_cv_model(label='tfidf_char_lr',
                            train=train,
                            test=test,
-                           post_train=post_train,
-                           post_test=post_test,
-                           model_fn=runLR,
+                           post_train=post_train_cleaned,
+                           post_test=post_test_cleaned,
+                           model_fn=runDoubleLR,
                            kf=kf)
-# Toxic:   0.9757378905615528
-# Severe:  0.98809320098589093
-# Obscene: 0.9876460330203326
-# Threat:  0.98599830847433922
-# Insult:  0.98180741213603251
-# Hate:    0.98216254095868538
-# 0.98357423102280561
+# Toxic:   0.97942405783843223
+# Severe:  0.98777339082449733
+# Obscene: 0.99159022202176195
+# Threat:  0.98942855482670455
+# Insult:  0.98251217712541661
+# Hate:    0.98453472009582277
+# 0.98587718712210581
 
 print('~~~~~~~~~~~~~')
 print_step('Run NBLR')
 train, test = run_cv_model(label='tfidf_char_nblr',
                            train=train,
                            test=test,
-                           post_train=post_train,
-                           post_test=post_test,
+                           post_train=post_train_cleaned,
+                           post_test=post_test_cleaned,
                            model_fn=runNBLR,
                            kf=kf)
-# Toxic:   0.98094395807405343
-# Severe:  0.98588747442559532
-# Obscene: 0.99171786294918685
-# Threat:  0.98891238560837191
-# Insult:  0.98347127302252113
-# Hate:    0.98221178632244333
-# 0.98552412340036188
+# Toxic:   0.98117198787363669
+# Severe:  0.98635829017675358
+# Obscene: 0.99225265361509507
+# Threat:  0.98889169152013889
+# Insult:  0.98378758887481443
+# Hate:    0.98240999840321253
+# 0.98581203507727511
 
 print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 print_step('Run TFIDF WORD-CHAR UNION')
@@ -257,7 +275,10 @@ train, test = run_cv_model(label='tfidf_union_nblr',
 # Hate:    0.97718255253247288
 # 0.9829048071864922
 
+import pdb
+pdb.set_trace()
 print('~~~~~~~~~~~~~~~~~~')
 print_step('Cache Level 2')
 train.to_csv('cache/train_lvl1.csv', index=False)
 test.to_csv('cache/test_lvl1.csv', index=False)
+print_step('Done!')
