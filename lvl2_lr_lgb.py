@@ -13,37 +13,31 @@ def runLGB(train_X, train_y, test_X, test_y, test_X2, label):
     d_train = lgb.Dataset(train_X, label=train_y)
     d_valid = lgb.Dataset(test_X, label=test_y)
     watchlist = [d_train, d_valid]
-    # rounds_lookup = {'toxic': 250,
-    #                  'severe_toxic': 150,
-    #                  'obscene': 220,
-    #                  'threat': 170,
-    #                  'insult': 170,
-    #                  'identity_hate': 160}
-    rounds_lookup = {'toxic': 1100,
-                     'severe_toxic': 450,
-                     'obscene': 530,
-                     'threat': 550,
-                     'insult': 800,
-                     'identity_hate': 410}
+    rounds_lookup = {'toxic': 4700,
+                     'severe_toxic': 1600,
+                     'obscene': 3500,
+                     'threat': 3100,
+                     'insult': 2600,
+                     'identity_hate': 1900}
     params = {
         'boosting': 'dart',
-        'learning_rate': 0.05,
+        'learning_rate': 0.01,
         'application': 'binary',
-        'num_leaves': 31,
+        'num_leaves': 61,         # consider upping this?
         'verbosity': -1,
         'metric': 'auc',
         'data_random_seed': 1,
-        'bagging_fraction': 0.8,
-        'feature_fraction': 0.8,
+        'bagging_fraction': 0.8,  # consider upping this to 1.0
+        'feature_fraction': 0.2,
         'nthread': 4,
-        'lambda_l1': 5,
-        'lambda_l2': 5
+        'lambda_l1': 1,
+        'lambda_l2': 1
     }
     model = lgb.train(params,
                       train_set=d_train,
                       num_boost_round=rounds_lookup[label],
                       valid_sets=watchlist,
-                      verbose_eval=10)
+                      verbose_eval=100) # 10
     print(model.feature_importance())
     pred_test_y = model.predict(test_X)
     pred_test_y2 = model.predict(test_X2)
@@ -103,13 +97,13 @@ submission['identity_hate'] = test_['lvl2_lgb_identity_hate']
 submission.to_csv('submit/submit_lvl2_lgb2.csv', index=False)
 print_step('Done')
 
-# Toxic: 0.98517462693157398
-# Severe toxic: 0.99116138771512752
-# Obscene: 0.99405118797799175
-# Threat: 0.99057960406767198
-# Insult: 0.98747665969929099
-# Identity Hate: 0.98720738970579713
-# Overall: 0.98927514268290884
+# Toxic: 0.9852689559384487
+# Severe toxic: 0.9911143771337798
+# Obscene: 0.9940067706939768
+# Threat: 0.9917843413165744
+# Insult: 0.987364092758875
+# Identity Hate: 0.9870498467414743
+# Overall: 0.9894313974305216
 
 
 
