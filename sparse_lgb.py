@@ -107,8 +107,10 @@ train, test = run_cv_model(label='sparse_lgb',
                            kf=kf)
 
 
+import pdb
+pdb.set_trace()
 print('~~~~~~~~~~~~~~~~~~')
-print_step('Cache Level 2')
+print_step('Cache Level 1')
 train.to_csv('cache/train_sparse_lgb_lvl1.csv', index=False)
 test.to_csv('cache/test_sparse_lgb_lvl1.csv', index=False)
 
@@ -125,8 +127,6 @@ submission['insult'] = test['sparse_lgb_insult']
 submission['identity_hate'] = test['sparse_lgb_identity_hate']
 submission.to_csv('submit/submit_sparse_lgb.csv', index=False)
 print_step('Done')
-import pdb
-pdb.set_trace()
 # Toxic:   0.9785333073156789
 # Severe:  0.9869978349294168
 # Obscene: 0.9919044610414174

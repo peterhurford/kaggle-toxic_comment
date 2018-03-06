@@ -84,6 +84,11 @@ train_, test_ = run_cv_model(label='lvl2_lgb',
 
 import pdb
 pdb.set_trace()
+print('~~~~~~~~~~~~~~~~~~')
+print_step('Cache Level 2')
+train.to_csv('cache/train_lgb_lr_lvl2.csv', index=False)
+test.to_csv('cache/test_lgb_lr_lvl2.csv', index=False)
+
 print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 print_step('Prepping submission file')
 submission = pd.DataFrame()
