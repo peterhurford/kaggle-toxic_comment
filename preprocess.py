@@ -1,4 +1,5 @@
 import re
+import os
 
 import pandas as pd
 
@@ -7,29 +8,6 @@ from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from utils import print_step
-
-
-def get_data():
-    train = pd.read_csv('data/train.csv')
-    test = pd.read_csv('data/test.csv')
-    print('Train shape: {}'.format(train.shape))
-    print('Test shape: {}'.format(test.shape))
-
-
-    print_step('Filling missing')
-    train['comment_text'].fillna('missing', inplace=True)
-    test['comment_text'].fillna('missing', inplace=True)
-    print('Train shape: {}'.format(train.shape))
-    print('Test shape: {}'.format(test.shape))
-    return train, test
-
-
-def get_stage2_data():
-    train = pd.read_csv('cache/train_lvl1.csv')
-    test = pd.read_csv('cache/test_lvl1.csv')
-    print('Train shape: {}'.format(train.shape))
-    print('Test shape: {}'.format(test.shape))
-    return train, test
 
 
 def clean_text(train, test):
@@ -158,6 +136,12 @@ def clean_text(train, test):
     train2['comment_text'] = trate
     test2['comment_text'] = tete
     print_step('only alphabets')
+
+    train2['comment_text'].fillna('missing', inplace=True)
+    test2['comment_text'].fillna('missing', inplace=True)
+    print_step('Filling missing')
+    print('Train shape: {}'.format(train.shape))
+    print('Test shape: {}'.format(test.shape))
     return train2, test2
 
 

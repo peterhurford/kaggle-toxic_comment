@@ -1,0 +1,17 @@
+afinn==0.1
+dill==0.7.1
+lightgbm==2.1.0
+multiprocess==0.70.5
+nltk==3.2.5
+numpy==1.14.1
+pandas==0.22.0
+pathos==0.2.1
+pox==0.2.3
+ppft==1.6.4.7.1
+python-dateutil==2.6.1
+pytz==2018.3
+scikit-learn==0.19.1
+scipy==1.0.0
+six==1.11.0
+sklearn==0.0
+textblob==0.15.1
