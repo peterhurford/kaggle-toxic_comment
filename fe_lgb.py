@@ -45,8 +45,8 @@ def runLGB(train_X, train_y, test_X, test_y, test_X2, label, dev_index, val_inde
     return pred_test_y, pred_test_y2
 
 
-print('~~~~~~~~~~~~~~~')
 if not is_in_cache('fe_lgb_data'):
+    print('~~~~~~~~~~~~~~~')
     print_step('Importing Data')
     train, test = get_data()
     print_step('Adding Features')
