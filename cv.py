@@ -31,7 +31,7 @@ def run_with_target(label, target, data_key, model_fn, kf):
             print_step('Started ' + label + ' ' + target + ' fold ' + str(i))
             dev_X, val_X = post_train[dev_index], post_train[val_index]
             dev_y, val_y = train_y[dev_index], train_y[val_index]
-            pred_val_y, pred_test_y = model_fn(dev_X, dev_y, val_X, val_y, post_test, target)
+            pred_val_y, pred_test_y = model_fn(dev_X, dev_y, val_X, val_y, post_test, target, dev_index, val_index)
             pred_full_test = pred_full_test + pred_test_y
             pred_train[val_index] = pred_val_y
             cv_score = roc_auc_score(val_y, pred_val_y)
@@ -56,7 +56,7 @@ def run_cv_model(label, train, test, data_key, model_fn, kf):
     targets = ['toxic', 'severe_toxic', 'obscene', 'threat', 'insult', 'identity_hate']
 
     n_cpu = mp.cpu_count()
-    n_nodes = min(n_cpu - 1, 3)
+    n_nodes = min(n_cpu - 1, 6)
     print('Starting a jobs server with %d nodes' % n_nodes)
     pool = mp.ProcessingPool(n_nodes, maxtasksperchild=500)
     results = pool.map(lambda targ: run_with_target(label, targ, data_key, model_fn, kf), targets)

@@ -13,7 +13,7 @@ from feature_engineering import add_features
 
 
 # LGB Model Definition
-def runLGB(train_X, train_y, test_X, test_y, test_X2, label):
+def runLGB(train_X, train_y, test_X, test_y, test_X2, label, dev_index, val_index):
     d_train = lgb.Dataset(train_X, label=train_y)
     d_valid = lgb.Dataset(test_X, label=test_y)
     watchlist = [d_train, d_valid]
@@ -45,29 +45,21 @@ def runLGB(train_X, train_y, test_X, test_y, test_X2, label):
     return pred_test_y, pred_test_y2
 
 
-print('~~~~~~~~~~~~~~~~~~~')
-print_step('Importing Data')
-train, test = get_data()
-
-
 print('~~~~~~~~~~~~~~~')
 if not is_in_cache('fe_lgb_data'):
-    ## Base Features
+    print_step('Importing Data')
+    train, test = get_data()
     print_step('Adding Features')
     train, test = add_features(train, test)
-
-    # train['pos_space'] = train.comment_text.apply(lambda t: ' '.join([x[1] for x in TextBlob(tokenize_fn(t)).pos_tags]))
-    # print_step('POS 1/2')
-    # test['pos_space'] = test.comment_text.apply(lambda t: ' '.join([x[1] for x in TextBlob(tokenize_fn(t)).pos_tags]))
-    # print_step('POS 2/2')
-
     print_step('Dropping')
-    train.drop(['id', 'comment_text', 'afinn'], axis=1, inplace=True)
-    test.drop(['id', 'comment_text', 'afinn'], axis=1, inplace=True)
+    train.drop(['id', 'comment_text'], axis=1, inplace=True)
+    test.drop(['id', 'comment_text'], axis=1, inplace=True)
     train.drop(['toxic', 'severe_toxic', 'obscene', 'threat',
                  'insult', 'identity_hate'], axis=1, inplace=True)
     print_step('Saving')
     save_in_cache('fe_lgb_data', train, test)
+else:
+    train, test = load_cache('fe_lgb_data')
 
 
 print('~~~~~~~~~~~~~~~~~~~~~~~~')
@@ -105,16 +97,16 @@ submission['insult'] = test['fe_lgb_insult']
 submission['identity_hate'] = test['fe_lgb_identity_hate']
 submission.to_csv('submit/submit_fe_lgb.csv', index=False)
 print_step('Done!')
-# toxic CV scores : [0.9637513738451069, 0.9642285094463718, 0.9608774786672482, 0.9598456713004437, 0.9611342950969638]
-# toxic mean CV : 0.9619674656712268
-# severe_toxic CV scores : [0.9890864027469054, 0.9876797398104239, 0.9878439457852395, 0.9892578534856067, 0.9850030832028202]
-# severe_toxic mean CV : 0.9877742050061992
-# obscene CV scores : [0.9903894949613599, 0.9902422266923127, 0.9877341687001356, 0.9896926322903385, 0.9869627190198718]
-# obscene mean CV : 0.9890042483328039
-# threat CV scores : [0.9821248048859695, 0.975311036644772, 0.9656288302586507, 0.9817650386573638, 0.9597594542645507]
-# threat mean CV : 0.9729178329422613
-# insult CV scores : [0.9735521182549207, 0.9721271669056747, 0.9724818545148813, 0.9783919382930557, 0.9777996059214333]
-# insult mean CV : 0.9748705367779931
-# identity_hate CV scores : [0.9696822667263949, 0.9747637298901671, 0.9622949388522032, 0.9762463700403865, 0.978523036609928]
-# identity_hate mean CV : 0.972302068423816
-# ('fe_lgb overall : ', 0.9764727261923833)
+# toxic CV scores : [0.9716332989330163, 0.971155846124998, 0.9692958372138222, 0.9671419230498856, 0.9690416857295657]
+# toxic mean CV : 0.9696537182102576
+# severe_toxic CV scores : [0.988795554058071, 0.9865260812169696, 0.9889780584106946, 0.9905073071658793, 0.9845606696428792]
+# severe_toxic mean CV : 0.9878735340988987
+# obscene CV scores : [0.9903225414910851, 0.9911829816807867, 0.9895193501931143, 0.9907392260079375, 0.9890463030959521]
+# obscene mean CV : 0.9901620804937752
+# threat CV scores : [0.9877909687084236, 0.9826111167855683, 0.977648967597976, 0.9865405546678312, 0.968987431807881]
+# threat mean CV : 0.9807158079135361
+# insult CV scores : [0.9786169248574023, 0.9765427216447377, 0.9770361476165886, 0.9810249158058909, 0.9817663216647988]
+# insult mean CV : 0.9789974063178837
+# identity_hate CV scores : [0.9721974667105553, 0.9811971663899348, 0.9697375584058858, 0.9800579331035554, 0.9832834826192252]
+# identity_hate mean CV : 0.9772947214458313
+# ('fe_lgb2 overall : ', 0.9807828780800305)

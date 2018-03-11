@@ -12,7 +12,7 @@ from cache import is_in_cache, load_cache, save_in_cache
 from feature_engineering import add_features
 
 
-def runLGB(train_X, train_y, test_X, test_y, test_X2, label):
+def runLGB(train_X, train_y, test_X, test_y, test_X2, label, dev_index, val_index):
     d_train = lgb.Dataset(train_X, label=train_y)
     d_valid = lgb.Dataset(test_X, label=test_y)
     watchlist = [d_train, d_valid]

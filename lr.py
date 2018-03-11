@@ -64,7 +64,7 @@ TFIDF_UNION2 = {'ngram_min': 2,
 
 
 # LR Model Definition
-def runLR(train_X, train_y, test_X, test_y, test_X2, label):
+def runLR(train_X, train_y, test_X, test_y, test_X2, label, dev_index, val_index):
     model = LogisticRegression(solver='sag')
     model.fit(train_X, train_y)
     pred_test_y = model.predict_proba(test_X)[:, 1]
@@ -73,7 +73,7 @@ def runLR(train_X, train_y, test_X, test_y, test_X2, label):
 
 
 # Average both L1 and L2 Penalty with increased regularization
-def runDoubleLR(train_X, train_y, test_X, test_y, test_X2, label):
+def runDoubleLR(train_X, train_y, test_X, test_y, test_X2, label, dev_index, val_index):
     model = LogisticRegression(C=5, penalty='l1')
     model2 = LogisticRegression(C=5, penalty='l2')
     model.fit(train_X, train_y)
@@ -89,7 +89,7 @@ def pr(x, y_i, y):
     p = x[y == y_i].sum(0)
     return (p + 1) / ((y == y_i).sum() + 1)
 
-def runNBLR(train_X, train_y, test_X, test_y, test_X2, label):
+def runNBLR(train_X, train_y, test_X, test_y, test_X2, label, dev_index, val_index):
     train_y = train_y.values
     r = csr_matrix(np.log(pr(train_X, 1, train_y) / pr(train_X, 0, train_y)))
     model = LogisticRegression(C=4, dual=True)
@@ -110,9 +110,8 @@ if not is_in_cache('cleaned'):
     print_step('Cleaning')
     train_cleaned, test_cleaned = clean_text(train, test)
     save_in_cache('cleaned', train_cleaned, test_cleaned)
-    del train_cleaned
-    del test_cleaned
-    gc.collect()
+else:
+    train_cleaned, test_cleaned = load_cache('cleaned')
 
 
 print('~~~~~~~~~~~~~~~~~~~~~~~~')
@@ -130,17 +129,58 @@ if not is_in_cache('tfidf_word'):
     del post_test
     gc.collect()
 
-if not is_in_cache('tfidf_word_cleaned'):
-    TFIDF_PARAMS_WORD.update({'train': train_cleaned, 'test': test_cleaned})
-    post_train_cleaned, post_test_cleaned = run_tfidf(**TFIDF_PARAMS_WORD)
-    save_in_cache('tfidf_word_cleaned', post_train_cleaned, post_test_cleaned)
-    del post_train_cleaned
+# if not is_in_cache('tfidf_word_cleaned'):
+#     TFIDF_PARAMS_WORD.update({'train': train_cleaned, 'test': test_cleaned})
+#     post_train_cleaned, post_test_cleaned = run_tfidf(**TFIDF_PARAMS_WORD)
+#     save_in_cache('tfidf_word_cleaned', post_train_cleaned, post_test_cleaned)
+#     del post_train_cleaned
+#     del post_test_cleaned
+#     gc.collect()
+
+
+if not is_in_cache('tfidf_word_nostop'):
+    print('~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+    print_step('Run TFIDF WORD NO STOP')
+    TFIDF_PARAMS_WORD_NOSTOP.update({'train': train, 'test': test})
+    post_train, post_test = run_tfidf(**TFIDF_PARAMS_WORD_NOSTOP)
+    save_in_cache('tfidf_word_nostop', post_train, post_test)
+    del post_train
+    del post_test
+    gc.collect()
+
+# if not is_in_cache('tfidf_word_nostop_cleaned'):
+#     TFIDF_PARAMS_WORD_NOSTOP.update({'train': train_cleaned, 'test': test_cleaned})
+#     post_train_cleaned, post_test_cleaned = run_tfidf(**TFIDF_PARAMS_WORD_NOSTOP)
+#     save_in_cache('tfidf_word_nostop_cleaned', post_train_cleaned, post_test_cleaned)
+#     del post_train_cleaned
+#     del post_test_cleaned
+#     gc.collect()
+
+
+print('~~~~~~~~~~~~~~~~~~~')
+print_step('Run TFIDF CHAR')
+if not is_in_cache('tfidf_char_cleaned'):
+    TFIDF_PARAMS_CHAR.update({'train': train_cleaned, 'test': test_cleaned})
+    post_train_cleaned, post_test_cleaned = run_tfidf(**TFIDF_PARAMS_CHAR)
+    save_in_cache('tfidf_char_cleaned', post_train_cleaned, post_test_cleaned)
     del post_test_cleaned
+    del post_train_cleaned
+    gc.collect()
+del train_cleaned
+del test_cleaned
+gc.collect()
+
+if not is_in_cache('tfidf_char'):
+    TFIDF_PARAMS_CHAR.update({'train': train, 'test': test})
+    post_train, post_test = run_tfidf(**TFIDF_PARAMS_CHAR)
+    save_in_cache('tfidf_char', post_train, post_test)
+    del post_train
+    del post_test
     gc.collect()
 
 
-print('~~~~~~~~~~~')
-print_step('Run LR')
+print('~~~~~~~~~~~~~~~~')
+print_step('Run Word LR')
 train, test = run_cv_model(label='tfidf_word_lr',
                            data_key='tfidf_word',
                            model_fn=runDoubleLR,
@@ -162,8 +202,8 @@ train, test = run_cv_model(label='tfidf_word_lr',
 # ('tfidf_word_lr overall : ', 0.9811469905897159)
 
 
-print('~~~~~~~~~~~~~')
-print_step('Run NBLR')
+print('~~~~~~~~~~~~~~~~~~')
+print_step('Run Word NBLR')
 train, test = run_cv_model(label='tfidf_word_nblr',
                            data_key='tfidf_word',
                            model_fn=runNBLR,
@@ -185,92 +225,71 @@ train, test = run_cv_model(label='tfidf_word_nblr',
 # ('tfidf_word_nblr overall : ', 0.9785624289291238)
 
 
-if not is_in_cache('tfidf_word_nostop'):
-    print('~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-    print_step('Run TFIDF WORD NO STOP')
-    TFIDF_PARAMS_WORD_NOSTOP.update({'train': train, 'test': test})
-    post_train, post_test = run_tfidf(**TFIDF_PARAMS_WORD_NOSTOP)
-    save_in_cache('tfidf_word_nostop', post_train, post_test)
-    del post_train
-    del post_test
-    gc.collect()
+print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+print_step('Run TFIDF WORD-CHAR UNION')
 
-if not is_in_cache('tfidf_word_nostop_cleaned'):
-    TFIDF_PARAMS_WORD_NOSTOP.update({'train': train_cleaned, 'test': test_cleaned})
-    post_train_cleaned, post_test_cleaned = run_tfidf(**TFIDF_PARAMS_WORD_NOSTOP)
-    save_in_cache('tfidf_word_nostop_cleaned', post_train_cleaned, post_test_cleaned)
-    del post_train_cleaned
-    del post_test_cleaned
-    gc.collect()
+if is_in_cache('tfidf_char_union'):
+    post_train, post_test = load_cache('tfidf_char_union')
+else:
+    TFIDF_UNION1.update({'train': train, 'test': test})
+    post_trainw, post_testw = run_tfidf(**TFIDF_UNION1)
+    TFIDF_UNION2.update({'train': train, 'test': test})
+    post_trainc, post_testc = run_tfidf(**TFIDF_UNION2)
+    post_train = csr_matrix(hstack([post_trainw, post_trainc]))
+    del post_trainw; del post_trainc; gc.collect()
+    post_test = csr_matrix(hstack([post_testw, post_testc]))
+    del post_testw; del post_testc; gc.collect()
+    save_in_cache('tfidf_char_union', post_train, post_test)
 
 
-print('~~~~~~~~~~~')
-print_step('Run LR')
+print('~~~~~~~~~~~~~~~~~~~~~~~~')
+print_step('Run Word No-stop LR')
 train, test = run_cv_model(label='tfidf_word_nostop_lr',
                            data_key='tfidf_word_nostop',
                            model_fn=runDoubleLR,
                            train=train,
                            test=test,
                            kf=kf)
-# toxic CV scores : [0.9757775711805157, 0.9754465432756563, 0.9748019159272142, 0.9727014302951672, 0.9753665374752702]
-# toxic mean CV : 0.9748187996307648
-# severe_toxic CV scores : [0.9822784202277897, 0.980976167313486, 0.9828378959608803, 0.988870257932364, 0.9832506929144873]
-# severe_toxic mean CV : 0.9836426868698014
-# obscene CV scores : [0.9863023477762932, 0.9859711923884477, 0.9860688026443972, 0.9847885394576511, 0.9868893473824496]
-# obscene mean CV : 0.9860040459298478
-# threat CV scores : [0.9892916444053343, 0.9904461236472967, 0.9868936405920992, 0.9938872733408102, 0.9823034627867047]
-# threat mean CV : 0.9885644289544491
-# insult CV scores : [0.9778662492849415, 0.9786533784144414, 0.9773925540859192, 0.9796892469590975, 0.9802904210445909]
-# insult mean CV : 0.9787783699577981
-# identity_hate CV scores : [0.9733348077893578, 0.9725153571212009, 0.9727115012218085, 0.9780397357460275, 0.9787757683116858]
-# identity_hate mean CV : 0.975075434038016
-# ('tfidf_word_nostop_lr overall : ', 0.9811472942301128)
+# toxic CV scores : [0.9755463841013073, 0.9753979313406889, 0.9748562847831383, 0.9726387684610107, 0.9752481878960215]
+# toxic mean CV : 0.9747375113164335
+# severe_toxic CV scores : [0.982322620497575, 0.9808813147987286, 0.982854564603641, 0.9888985350941901, 0.9835449738337034]
+# severe_toxic mean CV : 0.9837004017655676
+# obscene CV scores : [0.9864381341124995, 0.9858908873781942, 0.9862271469673383, 0.9847086037664334, 0.9868721088185911]
+# obscene mean CV : 0.9860273762086115
+# threat CV scores : [0.9894762825146401, 0.990457909058529, 0.9871404794829085, 0.9938928974330982, 0.9825343813994726]
+# threat mean CV : 0.9887003899777296
+# insult CV scores : [0.977881202981604, 0.9786934501386447, 0.9775995065286077, 0.9797496019843493, 0.98026534902532]
+# insult mean CV : 0.9788378221317051
+# identity_hate CV scores : [0.9729595189823463, 0.9723255692819551, 0.9726186885559058, 0.9780060981859006, 0.9788728559852302]
+# identity_hate mean CV : 0.9749565461982677
+# ('tfidf_word_nostop_lr overall : ', 0.9811600079330525)
 
 
-print('~~~~~~~~~~~~~')
-print_step('Run NBLR')
+print('~~~~~~~~~~~~~~~~~~~~~~~~~~')
+print_step('Run Word No-stop NBLR')
 train, test = run_cv_model(label='tfidf_word_nostop_nblr',
                            data_key='tfidf_word_nostop',
                            model_fn=runNBLR,
                            train=train,
                            test=test,
                            kf=kf)
-# toxic CV scores : [0.9772131130009183, 0.9775146406777059, 0.9769621008062486, 0.9753843107161422, 0.9772501917811696]
-# toxic mean CV : 0.976864871396437
-# severe_toxic CV scores : [0.9756020463683154, 0.9809006623305044, 0.9763878257392616, 0.982848512298829, 0.9684028017210373]
-# severe_toxic mean CV : 0.9768283696915894
-# obscene CV scores : [0.9879042584952109, 0.9869183882224537, 0.9873306432287833, 0.9865324609777566, 0.9879830167236009]
-# obscene mean CV : 0.9873337535295612
-# threat CV scores : [0.9806467178939208, 0.9848568923703866, 0.989893027750715, 0.9936844751894822, 0.9628761938790026]
-# threat mean CV : 0.9823914614167014
-# insult CV scores : [0.9785862645506789, 0.9779853560017152, 0.9780877460359315, 0.9795534062972014, 0.9778310610507854]
-# insult mean CV : 0.9784087667872626
-# identity_hate CV scores : [0.9634842640818239, 0.971872418471948, 0.966175577038844, 0.9762263450045918, 0.9699763400827078]
-# identity_hate mean CV : 0.9695469889359831
-# ('tfidf_word_nostop_nblr overall : ', 0.9785623686262558)
+# toxic CV scores : [0.9768566292540937, 0.9774012279345319, 0.9770977227221203, 0.9753824074096629, 0.9772751581819247]
+# toxic mean CV : 0.9768026291004668
+# severe_toxic CV scores : [0.9764123846477135, 0.9807363571375772, 0.9765748518797615, 0.9828629981431329, 0.9690244031906561]
+# severe_toxic mean CV : 0.977122198999768
+# obscene CV scores : [0.9878519290723909, 0.986992878852394, 0.9873912557440931, 0.9864634887906003, 0.9878080257111613]
+# obscene mean CV : 0.987301515634128
+# threat CV scores : [0.9813947641346366, 0.9846801112019024, 0.9902835831840515, 0.9935207148552128, 0.9630260593970312]
+# threat mean CV : 0.9825810465545668
+# insult CV scores : [0.9787361570597426, 0.9782284633723526, 0.9783654963463133, 0.9793892506737358, 0.9777182788205268]
+# insult mean CV : 0.9784875292545342
+# identity_hate CV scores : [0.962914918562554, 0.9721121564004795, 0.9658153513949407, 0.9754071185402243, 0.9695557018308171]
+# identity_hate mean CV : 0.969161049345803
+# ('tfidf_word_nostop_nblr overall : ', 0.9785759948148778)
 
 
-print('~~~~~~~~~~~~~~~~~~~')
-print_step('Run TFIDF CHAR')
-if not is_in_cache('tfidf_char_cleaned'):
-    TFIDF_PARAMS_CHAR.update({'train': train_cleaned, 'test': test_cleaned})
-    post_train_cleaned, post_test_cleaned = run_tfidf(**TFIDF_PARAMS_CHAR)
-    save_in_cache('tfidf_char_cleaned', post_train_cleaned, post_test_cleaned)
-    del post_test_cleaned
-    del post_train_cleaned
-    gc.collect()
-
-if not is_in_cache('tfidf_char'):
-    TFIDF_PARAMS_CHAR.update({'train': train, 'test': test})
-    post_train, post_test = run_tfidf(**TFIDF_PARAMS_CHAR)
-    save_in_cache('tfidf_char', post_train, post_test)
-    del post_train_cleaned
-    del post_test_cleaned
-    gc.collect()
-
-
-print('~~~~~~~~~~~')
-print_step('Run LR')
+print('~~~~~~~~~~~~~~~~')
+print_step('Run Char LR')
 train, test = run_cv_model(label='tfidf_char_lr',
                            data_key='tfidf_char',
                            model_fn=runDoubleLR,
@@ -292,8 +311,8 @@ train, test = run_cv_model(label='tfidf_char_lr',
 # ('tfidf_char_lr overall : ', 0.9855257084429706)
 
 
-print('~~~~~~~~~~~~~')
-print_step('Run NBLR')
+print('~~~~~~~~~~~~~~~~~~')
+print_step('Run Char NBLR')
 train, test = run_cv_model(label='tfidf_char_nblr',
                            data_key='tfidf_char_cleaned',
                            model_fn=runNBLR,
@@ -315,26 +334,8 @@ train, test = run_cv_model(label='tfidf_char_nblr',
 # ('tfidf_char_nblr overall : ', 0.9858120610556179)
 
 
-
-print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-print_step('Run TFIDF WORD-CHAR UNION')
-
-if is_in_cache('tfidf_char_union'):
-    post_train, post_test = load_cache('tfidf_char_union')
-else:
-    TFIDF_UNION1.update({'train': train, 'test': test})
-    post_trainw, post_testw = run_tfidf(**TFIDF_UNION1)
-    TFIDF_UNION2.update({'train': train, 'test': test})
-    post_trainc, post_testc = run_tfidf(**TFIDF_UNION2)
-    post_train = csr_matrix(hstack([post_trainw, post_trainc]))
-    del post_trainw; del post_trainc; gc.collect()
-    post_test = csr_matrix(hstack([post_testw, post_testc]))
-    del post_testw; del post_testc; gc.collect()
-    save_in_cache('tfidf_char_union', post_train, post_test)
-
-
-print('~~~~~~~~~~~')
-print_step('Run LR')
+print('~~~~~~~~~~~~~~~~~')
+print_step('Run Union LR')
 train, test = run_cv_model(label='tfidf_union_lr',
                            data_key='tfidf_char_union',
                            model_fn=runLR,
@@ -356,8 +357,8 @@ train, test = run_cv_model(label='tfidf_union_lr',
 # ('tfidf_union_lr overall : ', 0.985872421791584)
 
 
-print('~~~~~~~~~~~~~')
-print_step('Run NBLR')
+print('~~~~~~~~~~~~~~~~~~~')
+print_step('Run Union NBLR')
 train, test = run_cv_model(label='tfidf_union_nblr',
                            data_key='tfidf_char_union',
                            model_fn=runNBLR,
