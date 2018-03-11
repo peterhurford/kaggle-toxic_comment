@@ -71,6 +71,9 @@ def load_cache(key):
             test_path = 'cache/test_' + key + '.csv'
             train = pd.read_csv(train_path)
             test = pd.read_csv(test_path)
+            print_step('Filling missing')
+            train['comment_text'].fillna('missing', inplace=True)
+            test['comment_text'].fillna('missing', inplace=True)
             print('Train shape: {}'.format(train.shape))
             print('Test shape: {}'.format(test.shape))
 
