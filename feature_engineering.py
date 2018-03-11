@@ -331,7 +331,7 @@ def add_features(train, test):
             r'\bstfu\b', 'a-hole', 'wtf', 'rubbish', r'\banal\b', r'\bpeto', 'prostitut',
             'shut up', 'scum', 'thug', 'filth', 'rapist', 'bagger', 'communist', 'racist', 'hate',
             'sodomize', 'mother f ', 'lowly', 'cancer', 'spews', r'\bhag\b', 'tr0ll', r'\bha\b',
-			'haha', 'cry', 'lover', 'loving', 'sick', 'smell', 'freak', r'basement\b', 'anus']
+			'haha', 'cry', 'lover', 'loving', 'sick', 'smell', 'freak', 'anus', r'\bbasement']
     obscene = ['jack off', 'jizz', 'penis', 'semen', 'vagina', 'ejaculate', 'testicle', 'vajay',
 			   'piss', 'pecker', 'urinate']
     wiki = ['wiki', 'jimbo', 'talk', 'page', 'edit', 'signed', 'block', 'edit', 'contribute', 'bot',
