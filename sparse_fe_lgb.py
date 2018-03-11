@@ -181,3 +181,10 @@ train, test = run_cv_model(label='sparse_fe_lgb',
 # identity_hate CV scores : [0.9813239820122364, 0.984526497341114, 0.9743785292016209, 0.9829787758245618, 0.9842096405247325]
 # identity_hate mean CV : 0.9814834849808532
 # ('sparse_fe_lgb overall : ', 0.9845810002227906)
+
+import pdb
+pdb.set_trace()
+print('~~~~~~~~~~~~~~~~~~')
+print_step('Cache Level 2')
+save_in_cache('lvl1_sparse_fe_lgb', train, test)
+print_step('Done!')
