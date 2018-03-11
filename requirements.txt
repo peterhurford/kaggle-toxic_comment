@@ -1,4 +1,5 @@
 afinn==0.1
+Cython==0.27.3
 dill==0.7.1
 lightgbm==2.1.0
 multiprocess==0.70.5
@@ -9,10 +10,13 @@ pathos==0.2.1
 pox==0.2.3
 ppft==1.6.4.7.1
 python-dateutil==2.6.1
+python-Levenshtein==0.12.0
 pytz==2018.3
+requests==2.18.4
 scikit-learn==0.19.1
 scipy==1.0.0
 six==1.11.0
 sklearn==0.0
 textblob==0.15.1
 textstat==0.4.1
+Wordbatch==1.3.0
