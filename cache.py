@@ -34,13 +34,11 @@ def load_sparse_csr(filename):
 
 def is_in_cache(key):
     train_path = 'cache/train_' + key + '.csv'
-    test_path = 'cache/test_' + key + '.csv'
-    if os.path.exists(train_path) and os.path.exists(test_path):
+    if os.path.exists(train_path):
         return 'csv'
     else:
         train_path = 'cache/train_' + key + '.npcsr.npz'
-        test_path = 'cache/test_' + key + '.npcsr.npz'
-        if os.path.exists(train_path) and os.path.exists(test_path):
+        if os.path.exists(train_path):
             return 'csr'
         else:
             if os.path.exists('cache/model_' + key + '.npy'):
@@ -70,12 +68,18 @@ def load_cache(key):
             train_path = 'cache/train_' + key + '.csv'
             test_path = 'cache/test_' + key + '.csv'
             train = pd.read_csv(train_path)
-            test = pd.read_csv(test_path)
-            print_step('Filling missing')
-            train['comment_text'].fillna('missing', inplace=True)
-            test['comment_text'].fillna('missing', inplace=True)
+            try:
+                test = pd.read_csv(test_path)
+            except OSError:
+                test = None
+            if 'comment_text' in train.columns:
+                print_step('Filling missing')
+                train['comment_text'].fillna('missing', inplace=True)
+                if test is not None:
+                    test['comment_text'].fillna('missing', inplace=True)
+            if test is not None:
+                print('Test shape: {}'.format(test.shape))
             print('Train shape: {}'.format(train.shape))
-            print('Test shape: {}'.format(test.shape))
 
         if test is None:
             print_step('Skipped... Loaded ' + train_path + ' from cache!')
@@ -98,9 +102,10 @@ def save_in_cache(key, train, test):
         save_sparse_csr(test_path, test)
     else:
         train_path = 'cache/train_' + key + '.csv'
-        test_path = 'cache/test_' + key + '.csv'
         train.to_csv(train_path, index=False)
-        test.to_csv(test_path, index=False)
+        if test is not None:
+            test_path = 'cache/test_' + key + '.csv'
+            test.to_csv(test_path, index=False)
     if test is None:
         print_step('Saved ' + train_path + ' to cache!')
     else:
