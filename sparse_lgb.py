@@ -68,6 +68,10 @@ def runSparseLGB(train_X, train_y, test_X, test_y, test_X2, label, dev_index, va
     print(train_sparse_matrix.shape)
     test_sparse_matrix = sfm.transform(test_X)
     test_sparse_matrix2 = sfm.transform(test_X2)
+    del train_X
+    del test_X
+    del test_X2
+    gc.collect()
     d_train = lgb.Dataset(train_sparse_matrix, label=train_y)
     d_valid = lgb.Dataset(test_sparse_matrix, label=test_y)
     watchlist = [d_train, d_valid]
