@@ -16,6 +16,7 @@ from cv import run_cv_model
 from utils import print_step
 from preprocess import run_tfidf, clean_text
 from cache import get_data, is_in_cache, load_cache, save_in_cache
+from feature_engineering import add_features
 
 
 # Combine both word-level and character-level
@@ -41,7 +42,7 @@ TFIDF_UNION2 = {'ngram_min': 2,
 
 
 # Sparse LGB Model Definition
-def runSparseLGB(train_X, train_y, test_X, test_y, test_X2, label):
+def runSparseLGB(train_X, train_y, test_X, test_y, test_X2, label, dev_index, val_index):
     print_step('Get K Best')
     model = LogisticRegression(solver='sag', max_iter=500)
     sfm = SelectFromModel(model, threshold=0.2)
@@ -50,8 +51,27 @@ def runSparseLGB(train_X, train_y, test_X, test_y, test_X2, label):
     print(train_sparse_matrix.shape)
     test_sparse_matrix = sfm.transform(test_X)
     test_sparse_matrix2 = sfm.transform(test_X2)
-    d_train = lgb.Dataset(train_sparse_matrix, label=train_y)
-    d_valid = lgb.Dataset(test_sparse_matrix, label=test_y)
+
+    print_step('Merging')
+    train_fe, test_fe = load_cache('fe_lgb_data')
+    train_X = train_fe.values[dev_index]
+    test_X = train_fe.values[val_index]
+    test_X2 = test_fe
+    train_X = csr_matrix(hstack([csr_matrix(train_X), train_sparse_matrix]))
+    print(train_X.shape)
+    test_X = csr_matrix(hstack([csr_matrix(test_X), test_sparse_matrix]))
+    test_X2 = csr_matrix(hstack([csr_matrix(test_X2), test_sparse_matrix2]))
+
+    print_step('Garbage collection')
+    del train_fe
+    del test_fe
+    del train_sparse_matrix
+    del test_sparse_matrix
+    gc.collect()
+
+    print_step('Modeling')
+    d_train = lgb.Dataset(train_X, label=train_y)
+    d_valid = lgb.Dataset(test_X, label=test_y)
     watchlist = [d_train, d_valid]
     params = {'boosting': 'dart',
               'learning_rate': 0.1,
@@ -77,8 +97,8 @@ def runSparseLGB(train_X, train_y, test_X, test_y, test_X2, label):
                       num_boost_round=rounds_lookup[label],
                       valid_sets=watchlist,
                       verbose_eval=10)
-    pred_test_y = model.predict(test_sparse_matrix)
-    pred_test_y2 = model.predict(test_sparse_matrix2)
+    pred_test_y = model.predict(test_X)
+    pred_test_y2 = model.predict(test_X2)
     return pred_test_y, pred_test_y2
 
 
@@ -119,52 +139,45 @@ if not is_in_cache('tfidf_char_union'):
     post_test = csr_matrix(hstack([post_testw, post_testc]))
     del post_testw; del post_testc; gc.collect()
     save_in_cache('tfidf_char_union', post_train, post_test)
-else:
-    post_train, post_test = load_cache('tfidf_char_union')
+    del post_train
+    del post_test
 
 
 print('~~~~~~~~~~')
 print('Loading FE')
-if not is_in_cache('fe_lgb_sparse_data'):
-    train_fe, test_fe = load_cache('fe_lgb_data')
-	import pdb
-	pdb.set_trace()
-    merged_train = csr_matrix(hstack([train_fe, post_train]))
-    merged_test = csr_matrix(hstack([test_fe, post_test]))
-    save_in_cache('fe_lgb_sparse_data', merged_train, merged_test)
-    del merged_train
-    del merged_test
-del post_train
-del post_test
-gc.collect()
+if not is_in_cache('fe_lgb_data'):
+    print_step('Adding Features')
+    train_fe, test_fe = add_features(train, test)
+    print_step('Dropping')
+    train_fe.drop(['id', 'comment_text'], axis=1, inplace=True)
+    test_fe.drop(['id', 'comment_text'], axis=1, inplace=True)
+    train_fe.drop(['toxic', 'severe_toxic', 'obscene', 'threat',
+                   'insult', 'identity_hate'], axis=1, inplace=True)
+    print_step('Saving')
+    save_in_cache('fe_lgb_data', train_fe, test_fe)
+    del train_fe
+    del test_fe
+    gc.collect()
 
 
 print('~~~~~~~~~~~~')
 print_step('Run LGB')
 train, test = run_cv_model(label='sparse_fe_lgb',
-                           data_key='fe_lgb_sparse_data',
+                           data_key='tfidf_char_union',
                            model_fn=runSparseLGB,
                            train=train,
                            test=test,
                            kf=kf)
-# toxic CV scores : [0.9781458821170884, 0.9796751811907636, 0.9774164359237995, 0.9763362358568326, 0.979125692058316]
-# toxic mean CV : 0.97813988542936
-# severe_toxic CV scores : [0.9883306823092958, 0.9832857169079073, 0.98733957051456, 0.9908564060917936, 0.9851723493013308]
-# severe_toxic mean CV : 0.9869969450249775
-# obscene CV scores : [0.9919901331728017, 0.9926189378477984, 0.9918566322151603, 0.9916241276183199, 0.9918131317737762]
-# obscene mean CV : 0.9919805925255712
-# threat CV scores : [0.9842173701247683, 0.9855741655928847, 0.9882614030401122, 0.98693854190445, 0.9821430107420163]
-# threat mean CV : 0.9854268982808463
-# insult CV scores : [0.9812241384704781, 0.9817550783590435, 0.9828823396152575, 0.9852420243837232, 0.9833610946301301]
-# insult mean CV : 0.9828929350917264
-# identity_hate CV scores : [0.9814055420797074, 0.9839313712773262, 0.9766561520228718, 0.9866267073452393, 0.9847527914956148]
-# identity_hate mean CV : 0.982674512844152
-# ('tfidf_union_sparse_lgb overall : ', 0.9846852948661056)
-
-
-import pdb
-pdb.set_trace()
-print('~~~~~~~~~~~~~~~~~~')
-print_step('Cache Level 2')
-save_in_cache('lvl1_sparse_fe_lgb', train, test)
-print_step('Done!')
+# toxic CV scores : [0.9790484599476175, 0.9798696176018209, 0.9773743309325424, 0.9759005769341121, 0.9787393474895735]
+# toxic mean CV : 0.9781864665811332
+# severe_toxic CV scores : [0.9895208651069279, 0.988762010972531, 0.9888368214287309, 0.991622518741061, 0.986739797029509]
+# severe_toxic mean CV : 0.9890964026557519
+# obscene CV scores : [0.9925022391237317, 0.9923770439651333, 0.9902662976403407, 0.9916457707499977, 0.990764380645042]
+# obscene mean CV : 0.9915111464248489
+# threat CV scores : [0.990324177378296, 0.9880775833621421, 0.9823022407995222, 0.9895583764238052, 0.9765232192304257]
+# threat mean CV : 0.9853571194388383
+# insult CV scores : [0.9794441361682362, 0.9816209447456935, 0.9806077252967393, 0.9840483907506552, 0.9835357093152597]
+# insult mean CV : 0.9818513812553169
+# identity_hate CV scores : [0.9813239820122364, 0.984526497341114, 0.9743785292016209, 0.9829787758245618, 0.9842096405247325]
+# identity_hate mean CV : 0.9814834849808532
+# ('sparse_fe_lgb overall : ', 0.9845810002227906)

@@ -59,7 +59,7 @@ TFIDF_UNION2 = {'ngram_min': 2,
 
 
 # Sparse LGB Model Definition
-def runSparseLGB(train_X, train_y, test_X, test_y, test_X2, label):
+def runSparseLGB(train_X, train_y, test_X, test_y, test_X2, label, dev_index, val_index):
     print_step('Get K Best')
     model = LogisticRegression(solver='sag')
     sfm = SelectFromModel(model, threshold=0.2)
