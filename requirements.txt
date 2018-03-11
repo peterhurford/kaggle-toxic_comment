@@ -1,5 +1,5 @@
 afinn==0.1
-dill==0.7.1
+dill==0.2.7.1
 lightgbm==2.1.0
 multiprocess==0.70.5
 nltk==3.2.5

@@ -321,7 +321,7 @@ def add_features(train, test):
             'breast', 'cabron', 'feces', 'poop', 'porn', 'p0rn', 'screw', r'\bf you\b',
             r'\bstfu\b', 'a-hole', 'wtf', 'rubbish', r'\banal\b', r'\bpeto', 'prostitut',
             'shut up', 'scum', 'thug', 'filth', 'rapist', 'bagger', 'communist', 'racist', 'hate',
-            'sodomize', 'mother f ']
+            'sodomize', 'mother f ', r'\bbasement']
     obscene = ['jack off', 'jizz', 'penis', 'semen', 'vagina', 'ejaculate', 'test2icle', 'vajay', 'piss', 'pecker']
     wiki = ['wiki', 'jimbo', 'talk', 'page', 'edit', 'signed', 'block', 'edit', 'contribute', 'bot',
             'image:', 'file:', 'deletion', 'user:', '==', r'\baccount\b', 'sock puppet', 'sockpuppet',
