@@ -1,3 +1,4 @@
+import gc
 import pandas as pd
 
 import pathos.multiprocessing as mp
@@ -48,15 +49,19 @@ def runLGB(train_X, train_y, test_X, test_y, test_X2, label, dev_index, val_inde
 
 
 if not is_in_cache('lvl1_lr_with_fe'):
-    print('~~~~~~~~~~~~~~~~~~~~~~~~~~~')
     print_step('Importing Stage 2 Data')
     train, test = load_cache('lvl1_lr')
 
-    print('~~~~~~~~~~~~~~~~~~~')
-    print('Feature engineering')
-    train_, test_ = add_features(train, test)
+    print_step('Importing FE')
+    train_fe, test_fe = load_cache('fe_lgb_data')
 
-    print('~~~~~~~~~~~~~')
+    print_step('Merging')
+    train_ = pd.concat([train, train_fe], axis=1)
+    test_ = pd.concat([test, test_fe], axis=1)
+    del train_fe
+    del test_fe
+    gc.collect()
+
     print_step('Dropping')
     cols_to_drop = ['id', 'comment_text']
     train_ = train_.drop(cols_to_drop, axis=1)
@@ -105,19 +110,22 @@ submission['insult'] = test_['lvl2_lgb_insult']
 submission['identity_hate'] = test_['lvl2_lgb_identity_hate']
 submission.to_csv('submit/submit_lvl2_lgb2.csv', index=False)
 print_step('Done')
-# toxic CV scores : [0.985816666459727, 0.986631525294112, 0.984804069042669, 0.9843376003463112, 0.9858273233967133]
-# toxic mean CV : 0.9854834369079064
-# severe_toxic CV scores : [0.991524164203159, 0.9902529119275549, 0.991006473485696, 0.9930275464204338, 0.9903163123009128]
-# severe_toxic mean CV : 0.9912254816675514
-# obscene CV scores : [0.994772226056059, 0.9944294908501818, 0.9942605468909068, 0.994165438493176, 0.9937996020085749]
-# obscene mean CV : 0.9942854608597796
-# threat CV scores : [0.992849856479881, 0.9935180238222446, 0.9929683653372723, 0.9938101901935681, 0.9824247115998558]
-# threat mean CV : 0.9911142294865642
-# insult CV scores : [0.986412548355863, 0.9873686647147805, 0.9870245066724844, 0.9889739907301461, 0.9884310210778666]
-# insult mean CV : 0.9876421463102281
-# identity_hate CV scores : [0.9858132168708068, 0.9889228926996707, 0.9858809997622869, 0.9896755190449902, 0.9897994942665961]
-# identity_hate mean CV : 0.9880184245288701
 # ('lvl2_lgb2 overall : ', 0.9896281966268167)
+
+# toxic CV scores : [0.9857907121500065, 0.9866052651064504, 0.9848811869427058, 0.9843181820885379, 0.9858359364083221]
+# toxic mean CV : 0.9854862565392045
+# severe_toxic CV scores : [0.9916725898004627, 0.9903101607779891, 0.9910998377287784, 0.9930997772057303, 0.9902714657144375]
+# severe_toxic mean CV : 0.9912907662454795
+# obscene CV scores : [0.9947307618893799, 0.9945103048634256, 0.9942631115677498, 0.9942161838548307, 0.9938664798006344]
+# obscene mean CV : 0.9943173683952041
+# threat CV scores : [0.9930639581172676, 0.994607192243628, 0.9936915312653865, 0.994345802276765, 0.9841264957604269]
+# threat mean CV : 0.9919669959326948
+# insult CV scores : [0.9864497548263004, 0.9874732778486353, 0.9871709052782918, 0.9890149459258527, 0.9885061952792192]
+# insult mean CV : 0.98772301583166
+# identity_hate CV scores : [0.9849420428535718, 0.9892833433439763, 0.9850967608604599, 0.989889156926868, 0.9899049069550212]
+# identity_hate mean CV : 0.9878232421879793
+# ('lvl2_lgb overall : ', 0.9897679408553705)
+
 
 
 # GOLD:    0.9876S -> 0.9928CV

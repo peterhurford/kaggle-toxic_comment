@@ -1,5 +1,7 @@
 import gc
+
 import numpy as np
+import pandas as pd
 
 import pathos.multiprocessing as mp
 
@@ -56,7 +58,7 @@ def runSparseLGB(train_X, train_y, test_X, test_y, test_X2, label, dev_index, va
     train_fe, test_fe = load_cache('fe_lgb_data')
     train_X = train_fe.values[dev_index]
     test_X = train_fe.values[val_index]
-    test_X2 = test_fe
+    test_X2 = test_fe.values
     train_X = csr_matrix(hstack([csr_matrix(train_X), train_sparse_matrix]))
     print(train_X.shape)
     test_X = csr_matrix(hstack([csr_matrix(test_X), test_sparse_matrix]))
@@ -168,23 +170,37 @@ train, test = run_cv_model(label='sparse_fe_lgb',
                            train=train,
                            test=test,
                            kf=kf)
-# toxic CV scores : [0.9790484599476175, 0.9798696176018209, 0.9773743309325424, 0.9759005769341121, 0.9787393474895735]
-# toxic mean CV : 0.9781864665811332
-# severe_toxic CV scores : [0.9895208651069279, 0.988762010972531, 0.9888368214287309, 0.991622518741061, 0.986739797029509]
-# severe_toxic mean CV : 0.9890964026557519
-# obscene CV scores : [0.9925022391237317, 0.9923770439651333, 0.9902662976403407, 0.9916457707499977, 0.990764380645042]
-# obscene mean CV : 0.9915111464248489
-# threat CV scores : [0.990324177378296, 0.9880775833621421, 0.9823022407995222, 0.9895583764238052, 0.9765232192304257]
-# threat mean CV : 0.9853571194388383
-# insult CV scores : [0.9794441361682362, 0.9816209447456935, 0.9806077252967393, 0.9840483907506552, 0.9835357093152597]
-# insult mean CV : 0.9818513812553169
-# identity_hate CV scores : [0.9813239820122364, 0.984526497341114, 0.9743785292016209, 0.9829787758245618, 0.9842096405247325]
-# identity_hate mean CV : 0.9814834849808532
-# ('sparse_fe_lgb overall : ', 0.9845810002227906)
+# toxic CV scores : [0.9826496062603199, 0.9830212932736853, 0.9815062563553301, 0.98022789149499, 0.981731541721145]
+# toxic mean CV : 0.9818273178210941
+# severe_toxic CV scores : [0.9907376375169112, 0.9888719942493184, 0.9903119467039991, 0.9922809301301098, 0.9887765464258907]
+# severe_toxic mean CV : 0.9901958110052458
+# obscene CV scores : [0.9933673973796135, 0.993919978856799, 0.9926754787135739, 0.9927263904855579, 0.9933408309332551]
+# obscene mean CV : 0.9932060152737598
+# threat CV scores : [0.9893472977361535, 0.9912972922362948, 0.9904282818441812, 0.99134220616599, 0.9881882482937496]
+# threat mean CV : 0.9901206652552738
+# insult CV scores : [0.9832124677272037, 0.9835326755212629, 0.9839356436291075, 0.986883748038697, 0.9858095196238779]
+# insult mean CV : 0.9846748109080299
+# identity_hate CV scores : [0.9843095304682539, 0.9885634545571751, 0.981675404744786, 0.9885268357417188, 0.988652610966542]
+# identity_hate mean CV : 0.9863455672956952
+# ('sparse_fe_lgb overall : ', 0.987728364593183)
+
 
 import pdb
 pdb.set_trace()
 print('~~~~~~~~~~~~~~~~~~')
-print_step('Cache Level 2')
+print_step('Cache Level 1')
 save_in_cache('lvl1_sparse_fe_lgb', train, test)
+print_step('Done!')
+
+print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+print_step('Prepping submission file')
+submission = pd.DataFrame()
+submission['id'] = test['id']
+submission['toxic'] = test['sparse_fe_lgb_toxic']
+submission['severe_toxic'] = test['sparse_fe_lgb_severe_toxic']
+submission['obscene'] = test['sparse_fe_lgb_obscene']
+submission['threat'] = test['sparse_fe_lgb_threat']
+submission['insult'] = test['sparse_fe_lgb_insult']
+submission['identity_hate'] = test['sparse_fe_lgb_identity_hate']
+submission.to_csv('submit/submit_sparse_fe_lgb.csv', index=False)
 print_step('Done!')
