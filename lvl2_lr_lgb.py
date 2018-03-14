@@ -70,6 +70,7 @@ if not is_in_cache('lvl1_lr_with_fe'):
                                          'insult', 'identity_hate'], axis=1)
     print('Train shape: {}'.format(train_without_targets.shape))
     print('Test shape: {}'.format(test_.shape))
+    print_step('Saving')
     save_in_cache('lvl1_lr_with_fe', train_without_targets, test_)
 else:
     train, test = load_cache('lvl1_lr')
@@ -110,8 +111,6 @@ submission['insult'] = test_['lvl2_lgb_insult']
 submission['identity_hate'] = test_['lvl2_lgb_identity_hate']
 submission.to_csv('submit/submit_lvl2_lgb2.csv', index=False)
 print_step('Done')
-# ('lvl2_lgb2 overall : ', 0.9896281966268167)
-
 # toxic CV scores : [0.9857907121500065, 0.9866052651064504, 0.9848811869427058, 0.9843181820885379, 0.9858359364083221]
 # toxic mean CV : 0.9854862565392045
 # severe_toxic CV scores : [0.9916725898004627, 0.9903101607779891, 0.9910998377287784, 0.9930997772057303, 0.9902714657144375]
@@ -125,12 +124,3 @@ print_step('Done')
 # identity_hate CV scores : [0.9849420428535718, 0.9892833433439763, 0.9850967608604599, 0.989889156926868, 0.9899049069550212]
 # identity_hate mean CV : 0.9878232421879793
 # ('lvl2_lgb overall : ', 0.9897679408553705)
-
-
-
-# GOLD:    0.9876S -> 0.9928CV
-# TOP 25:  0.9874S -> 0.9926CV
-# TOP 50:  0.9871S -> 0.9923CV
-# TOP 100: 0.9869S -> 0.9921CV
-# SILVER:  0.9865S -> 0.9917CV
-# BRONZE:  0.9861S -> 0.9913CV

@@ -70,6 +70,7 @@ if not is_in_cache('lvl1_sparse_lgb_with_fe'):
                                          'insult', 'identity_hate'], axis=1)
     print('Train shape: {}'.format(train_without_targets.shape))
     print('Test shape: {}'.format(test_.shape))
+    print_step('Saving')
     save_in_cache('lvl1_sparse_lgb_with_fe', train_without_targets, test_)
 else:
     train, test = load_cache('lvl1_sparse_lgb')

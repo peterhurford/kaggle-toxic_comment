@@ -1,5 +1,6 @@
 import re
 import os
+import numpy as np
 
 import pandas as pd
 
@@ -197,3 +198,36 @@ def normalize_text(text):
     for (pattern, repl) in patterns:
         clean = re.sub(pattern, repl, clean)
     return u' '.join([y for y in non_alphas.sub(' ', clean).strip().split(' ')])
+
+
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+
+def glove_preprocess(text):
+    """
+    adapted from https://nlp.stanford.edu/projects/glove/preprocess-twitter.rb
+	thanks to Dieter from https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/discussion/50350#287297
+    """
+    # Different regex parts for smiley faces
+    eyes = "[8:=;]"
+    nose = "['`\-]?"
+    text = re.sub("https?:* ", "<URL>", text)
+    text = re.sub("www.* ", "<URL>", text)
+    text = re.sub("\[\[User(.*)\|", '<USER>', text)
+    text = re.sub("<3", '<HEART>', text)
+    text = re.sub("[-+]?[.\d]*[\d]+[:,.\d]*", "<NUMBER>", text)
+    text = re.sub(eyes + nose + "[Dd)]", '<SMILE>', text)
+    text = re.sub("[(d]" + nose + eyes, '<SMILE>', text)
+    text = re.sub(eyes + nose + "p", '<LOLFACE>', text)
+    text = re.sub(eyes + nose + "\(", '<SADFACE>', text)
+    text = re.sub("\)" + nose + eyes, '<SADFACE>', text)
+    text = re.sub(eyes + nose + "[/|l*]", '<NEUTRALFACE>', text)
+    text = re.sub("/", " / ", text)
+    text = re.sub("[-+]?[.\d]*[\d]+[:,.\d]*", "<NUMBER>", text)
+    text = re.sub("([!]){2,}", "! <REPEAT>", text)
+    text = re.sub("([?]){2,}", "? <REPEAT>", text)
+    text = re.sub("([.]){2,}", ". <REPEAT>", text)
+    pattern = re.compile(r"(.)\1{2,}")
+    text = pattern.sub(r"\1" + " <ELONG>", text)
+    return text

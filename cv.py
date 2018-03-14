@@ -60,13 +60,13 @@ def run_cv_model(label, train, test, data_key, model_fn, kf):
     print('Starting a jobs server with %d nodes' % n_nodes)
     pool = mp.ProcessingPool(n_nodes, maxtasksperchild=500)
     results = pool.map(lambda targ: run_with_target(label, targ, data_key, model_fn, kf), targets)
-    for r in results:
-        print(r['target'] + ' CV scores : ' + str(r['cv']))
-        mean_cv_score = np.mean(r['cv'])
-        print(r['target'] + ' mean CV : ' + str(mean_cv_score))
+    for rr in results:
+        print(rr['target'] + ' CV scores : ' + str(rr['cv']))
+        mean_cv_score = np.mean(rr['cv'])
+        print(rr['target'] + ' mean CV : ' + str(mean_cv_score))
         mean_cv_scores.append(mean_cv_score)
-        train[r['label'] + '_' + r['target']] = r['train']
-        test[r['label'] + '_' + r['target']] = r['test']
+        train[rr['label'] + '_' + rr['target']] = rr['train']
+        test[rr['label'] + '_' + rr['target']] = rr['test']
     pool.close()
     pool.join()
     pool.terminate()
