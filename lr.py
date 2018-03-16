@@ -63,28 +63,29 @@ TFIDF_UNION2 = {'ngram_min': 2,
                 'binary': False}
 
 
-# LR Model Definition
-def runLR(train_X, train_y, test_X, test_y, test_X2, label, dev_index, val_index):
+# LR Model Definitions
+def runSagLR(train_X, train_y, test_X, test_y, test_X2, label, dev_index, val_index):
     model = LogisticRegression(solver='sag')
     model.fit(train_X, train_y)
     pred_test_y = model.predict_proba(test_X)[:, 1]
     pred_test_y2 = model.predict_proba(test_X2)[:, 1]
     return pred_test_y, pred_test_y2
 
-
-# Average both L1 and L2 Penalty with increased regularization
-def runDoubleLR(train_X, train_y, test_X, test_y, test_X2, label, dev_index, val_index):
+def runL1LR(train_X, train_y, test_X, test_y, test_X2, label, dev_index, val_index):
     model = LogisticRegression(C=5, penalty='l1')
-    model2 = LogisticRegression(C=5, penalty='l2')
     model.fit(train_X, train_y)
-    model2.fit(train_X, train_y)
-    pred_test_y = model.predict_proba(test_X)[:, 1] * 0.5 + model2.predict_proba(test_X)[:, 1] * 0.5
-    pred_test_y2 = model.predict_proba(test_X2)[:, 1] * 0.5 + model2.predict_proba(test_X2)[:, 1] * 0.5
+    pred_test_y = model.predict_proba(test_X)[:, 1]
+    pred_test_y2 = model.predict_proba(test_X2)[:, 1]
+    return pred_test_y, pred_test_y2
+
+def runL2LR(train_X, train_y, test_X, test_y, test_X2, label, dev_index, val_index):
+    model = LogisticRegression(C=5, penalty='l2')
+    model.fit(train_X, train_y)
+    pred_test_y = model.predict_proba(test_X)[:, 1]
+    pred_test_y2 = model.predict_proba(test_X2)[:, 1]
     return pred_test_y, pred_test_y2
 
 
-# NB-LR Model Definition
-# See https://www.kaggle.com/jhoward/nb-svm-strong-linear-baseline
 def pr(x, y_i, y):
     p = x[y == y_i].sum(0)
     return (p + 1) / ((y == y_i).sum() + 1)
@@ -129,32 +130,16 @@ if not is_in_cache('tfidf_word'):
     del post_test
     gc.collect()
 
-# if not is_in_cache('tfidf_word_cleaned'):
-#     TFIDF_PARAMS_WORD.update({'train': train_cleaned, 'test': test_cleaned})
-#     post_train_cleaned, post_test_cleaned = run_tfidf(**TFIDF_PARAMS_WORD)
-#     save_in_cache('tfidf_word_cleaned', post_train_cleaned, post_test_cleaned)
-#     del post_train_cleaned
-#     del post_test_cleaned
-#     gc.collect()
-
 
 if not is_in_cache('tfidf_word_nostop'):
     print('~~~~~~~~~~~~~~~~~~~~~~~~~~~')
     print_step('Run TFIDF WORD NO STOP')
-    TFIDF_PARAMS_WORD_NOSTOP.update({'train': train, 'test': test})
+    TFIDF_PARAMS_WORD_NOSTOP.update({'train': train_cleaned, 'test': test_cleaned})
     post_train, post_test = run_tfidf(**TFIDF_PARAMS_WORD_NOSTOP)
     save_in_cache('tfidf_word_nostop', post_train, post_test)
     del post_train
     del post_test
     gc.collect()
-
-# if not is_in_cache('tfidf_word_nostop_cleaned'):
-#     TFIDF_PARAMS_WORD_NOSTOP.update({'train': train_cleaned, 'test': test_cleaned})
-#     post_train_cleaned, post_test_cleaned = run_tfidf(**TFIDF_PARAMS_WORD_NOSTOP)
-#     save_in_cache('tfidf_word_nostop_cleaned', post_train_cleaned, post_test_cleaned)
-#     del post_train_cleaned
-#     del post_test_cleaned
-#     gc.collect()
 
 
 print('~~~~~~~~~~~~~~~~~~~')
@@ -179,11 +164,27 @@ if not is_in_cache('tfidf_char'):
     gc.collect()
 
 
-print('~~~~~~~~~~~~~~~~')
-print_step('Run Word LR')
-train, test = run_cv_model(label='tfidf_word_lr',
+print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+print_step('Run TFIDF WORD-CHAR UNION')
+if is_in_cache('tfidf_char_union'):
+    post_train, post_test = load_cache('tfidf_char_union')
+else:
+    TFIDF_UNION1.update({'train': train, 'test': test})
+    post_trainw, post_testw = run_tfidf(**TFIDF_UNION1)
+    TFIDF_UNION2.update({'train': train, 'test': test})
+    post_trainc, post_testc = run_tfidf(**TFIDF_UNION2)
+    post_train = csr_matrix(hstack([post_trainw, post_trainc]))
+    del post_trainw; del post_trainc; gc.collect()
+    post_test = csr_matrix(hstack([post_testw, post_testc]))
+    del post_testw; del post_testc; gc.collect()
+    save_in_cache('tfidf_char_union', post_train, post_test)
+
+
+print('~~~~~~~~~~~~~~~~~~~~')
+print_step('Run Word LR Sag')
+train, test = run_cv_model(label='tfidf_word_lr_sag',
                            data_key='tfidf_word',
-                           model_fn=runDoubleLR,
+                           model_fn=runSagLR,
                            train=train,
                            test=test,
                            kf=kf)
@@ -201,6 +202,23 @@ train, test = run_cv_model(label='tfidf_word_lr',
 # identity_hate mean CV : 0.9750749615677557
 # ('tfidf_word_lr overall : ', 0.9811469905897159)
 
+print('~~~~~~~~~~~~~~~~~~~')
+print_step('Run Word LR L1')
+train, test = run_cv_model(label='tfidf_word_lr_l1',
+                           data_key='tfidf_word',
+                           model_fn=runL1LR,
+                           train=train,
+                           test=test,
+                           kf=kf)
+
+print('~~~~~~~~~~~~~~~~~~~')
+print_step('Run Word LR L2')
+train, test = run_cv_model(label='tfidf_word_lr_l2',
+                           data_key='tfidf_word',
+                           model_fn=runL2LR,
+                           train=train,
+                           test=test,
+                           kf=kf)
 
 print('~~~~~~~~~~~~~~~~~~')
 print_step('Run Word NBLR')
@@ -225,28 +243,11 @@ train, test = run_cv_model(label='tfidf_word_nblr',
 # ('tfidf_word_nblr overall : ', 0.9785624289291238)
 
 
-print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-print_step('Run TFIDF WORD-CHAR UNION')
-
-if is_in_cache('tfidf_char_union'):
-    post_train, post_test = load_cache('tfidf_char_union')
-else:
-    TFIDF_UNION1.update({'train': train, 'test': test})
-    post_trainw, post_testw = run_tfidf(**TFIDF_UNION1)
-    TFIDF_UNION2.update({'train': train, 'test': test})
-    post_trainc, post_testc = run_tfidf(**TFIDF_UNION2)
-    post_train = csr_matrix(hstack([post_trainw, post_trainc]))
-    del post_trainw; del post_trainc; gc.collect()
-    post_test = csr_matrix(hstack([post_testw, post_testc]))
-    del post_testw; del post_testc; gc.collect()
-    save_in_cache('tfidf_char_union', post_train, post_test)
-
-
-print('~~~~~~~~~~~~~~~~~~~~~~~~')
-print_step('Run Word No-stop LR')
-train, test = run_cv_model(label='tfidf_word_nostop_lr',
+print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+print_step('Run Word No-stop LR Sag')
+train, test = run_cv_model(label='tfidf_word_nostop_lr_sag',
                            data_key='tfidf_word_nostop',
-                           model_fn=runDoubleLR,
+                           model_fn=runSagLR,
                            train=train,
                            test=test,
                            kf=kf)
@@ -263,6 +264,24 @@ train, test = run_cv_model(label='tfidf_word_nostop_lr',
 # identity_hate CV scores : [0.9729595189823463, 0.9723255692819551, 0.9726186885559058, 0.9780060981859006, 0.9788728559852302]
 # identity_hate mean CV : 0.9749565461982677
 # ('tfidf_word_nostop_lr overall : ', 0.9811600079330525)
+
+print('~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+print_step('Run Word No-stop L1 LR')
+train, test = run_cv_model(label='tfidf_word_nostop_lr_l1',
+                           data_key='tfidf_word_nostop',
+                           model_fn=runL1LR,
+                           train=train,
+                           test=test,
+                           kf=kf)
+
+print('~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+print_step('Run Word No-stop L2 LR')
+train, test = run_cv_model(label='tfidf_word_nostop_lr_l2',
+                           data_key='tfidf_word_nostop',
+                           model_fn=runL2LR,
+                           train=train,
+                           test=test,
+                           kf=kf)
 
 
 print('~~~~~~~~~~~~~~~~~~~~~~~~~~')
@@ -288,11 +307,11 @@ train, test = run_cv_model(label='tfidf_word_nostop_nblr',
 # ('tfidf_word_nostop_nblr overall : ', 0.9785759948148778)
 
 
-print('~~~~~~~~~~~~~~~~')
-print_step('Run Char LR')
-train, test = run_cv_model(label='tfidf_char_lr',
+print('~~~~~~~~~~~~~~~~~~~~')
+print_step('Run Char Sag LR')
+train, test = run_cv_model(label='tfidf_char_lr_sag',
                            data_key='tfidf_char',
-                           model_fn=runDoubleLR,
+                           model_fn=runSagLR,
                            train=train,
                            test=test,
                            kf=kf)
@@ -310,6 +329,23 @@ train, test = run_cv_model(label='tfidf_char_lr',
 # identity_hate mean CV : 0.9841960392063219
 # ('tfidf_char_lr overall : ', 0.9855257084429706)
 
+print('~~~~~~~~~~~~~~~~~~~')
+print_step('Run Char L1 LR')
+train, test = run_cv_model(label='tfidf_char_lr_l1',
+                           data_key='tfidf_char',
+                           model_fn=runL1LR,
+                           train=train,
+                           test=test,
+                           kf=kf)
+
+print('~~~~~~~~~~~~~~~~~~~')
+print_step('Run Char L2 LR')
+train, test = run_cv_model(label='tfidf_char_lr_l2',
+                           data_key='tfidf_char',
+                           model_fn=runL2LR,
+                           train=train,
+                           test=test,
+                           kf=kf)
 
 print('~~~~~~~~~~~~~~~~~~')
 print_step('Run Char NBLR')
@@ -334,11 +370,11 @@ train, test = run_cv_model(label='tfidf_char_nblr',
 # ('tfidf_char_nblr overall : ', 0.9858120610556179)
 
 
-print('~~~~~~~~~~~~~~~~~')
-print_step('Run Union LR')
-train, test = run_cv_model(label='tfidf_union_lr',
+print('~~~~~~~~~~~~~~~~~~~~~')
+print_step('Run Union Sag LR')
+train, test = run_cv_model(label='tfidf_union_lr_sag',
                            data_key='tfidf_char_union',
-                           model_fn=runLR,
+                           model_fn=runSagLR,
                            train=train,
                            test=test,
                            kf=kf)
@@ -356,6 +392,23 @@ train, test = run_cv_model(label='tfidf_union_lr',
 # identity_hate mean CV : 0.9837030926070444
 # ('tfidf_union_lr overall : ', 0.985872421791584)
 
+print('~~~~~~~~~~~~~~~~~~~~')
+print_step('Run Union L1 LR')
+train, test = run_cv_model(label='tfidf_union_lr_l1',
+                           data_key='tfidf_char_union',
+                           model_fn=runL1LR,
+                           train=train,
+                           test=test,
+                           kf=kf)
+
+print('~~~~~~~~~~~~~~~~~~~~')
+print_step('Run Union L2 LR')
+train, test = run_cv_model(label='tfidf_union_lr_l2',
+                           data_key='tfidf_char_union',
+                           model_fn=runL2LR,
+                           train=train,
+                           test=test,
+                           kf=kf)
 
 print('~~~~~~~~~~~~~~~~~~~')
 print_step('Run Union NBLR')
