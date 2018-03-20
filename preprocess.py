@@ -167,11 +167,15 @@ def run_tfidf(train, test, ngram_min=1, ngram_max=2, min_df=5,
                ', max_features = ' + str(max_features) + ', sublinear_tf = ' +
                str(sublinear_tf) + ', binary = ' + str(binary))
     train_tfidf = tfidf_vec.fit_transform(train['comment_text'])
-    print_step('TFIDF 1/2')
-    test_tfidf = tfidf_vec.transform(test['comment_text'])
-    print_step('TFIDF 2/2')
-    print('TFIDF train shape: {}'.format(train_tfidf.shape))
-    print('TFIDF test shape: {}'.format(test_tfidf.shape))
+    if test is not None:
+        print_step('TFIDF 1/2')
+        test_tfidf = tfidf_vec.transform(test['comment_text'])
+        print_step('TFIDF 2/2')
+        print('TFIDF train shape: {}'.format(train_tfidf.shape))
+        print('TFIDF test shape: {}'.format(test_tfidf.shape))
+    else:
+        print('TFIDF train shape: {}'.format(train_tfidf.shape))
+        test_tfidf = None
     return train_tfidf, test_tfidf
 
 
