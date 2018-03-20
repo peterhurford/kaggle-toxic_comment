@@ -33,19 +33,20 @@ class RocAucEvaluation(Callback):
             print("\n ROC-AUC - epoch: %d - score: %.6f \n" % (epoch+1, score))
 
 
-EMBEDDING_FILE = 'cache/crawl/crawl-300d-2M.vec'
+EMBEDDING_FILE = 'cache/twitter/glove.twitter.27B.200d.txt'
 
 
 max_features = 200000
 maxlen = 200
-embed_size = 300
+embed_size = 200
 epochs = 2
 batch_size = 32
 predict_batch_size = 1024
 
 
 if not is_in_cache('lvl1_gru2'):
-    train_df, test_df = get_data()
+    train_df = pd.read_csv('data/train_zafar_cleaned.csv')
+    test_df = pd.read_csv('data/test_zafar_cleaned.csv')
 
     classes = ['toxic', 'severe_toxic', 'obscene', 'threat', 'insult', 'identity_hate']
     X_train = train_df['comment_text'].fillna('peterhurford').values
@@ -151,3 +152,10 @@ submission['insult'] = test_df['gru2_insult']
 submission['identity_hate'] = test_df['gru2_identity_hate']
 submission.to_csv('submit/submit_lvl1_gru2.csv', index=False)
 print_step('Done')
+# [('toxic', 0.9836574575457696),
+#  ('severe_toxic', 0.9906967766804187),
+#  ('obscene', 0.9939007295377233),
+#  ('threat', 0.9888710937612666),
+#  ('insult', 0.9886608016037515),
+#  ('identity_hate', 0.9894182678846271)]
+# mean cv score : 0.9892008545022595
