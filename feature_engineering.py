@@ -317,7 +317,7 @@ def add_features(train, test):
     mean_identity = ['dyke', 'dike', 'fag', 'gay', 'tranny', 'lesbo', 'queer', 'qweer', 'shemale', r'\bnegro',
                      r'\bgyp', r'\bgips', 'white trash', 'darkie', 'chinaman', r'\bcracker\b', 'eurotrash', r'\bsperg', 'aspie',
                      r'\bjap\b', 'christ killer', r'\bhomo\b', 'redneck', 'jew-hat', 'jew hat',
-                     r'\bturk\b', 'hermaphrodite', r'\bretard\b', 'subhuman']
+                     r'\bturk\b', 'hermaphrodite', r'\bretard\b', 'subhuman', 'gringo']
     identity = ['lesbian', 'bisexual', r'\btrans\b', 'transex', 'lesbian', r'jew\b', 'jewish', 'black', 'arab',
                 'muslim', 'asian', 'islam', 'jihad', 'mexican', 'african', 'irish', 'homosexual',
                 'frenchman', 'niger', 'transvest', 'afghan', 'armenian', 'speak english', 'semit',
@@ -331,7 +331,7 @@ def add_features(train, test):
             r'\bstfu\b', 'a-hole', 'wtf', 'rubbish', r'\banal\b', r'\bpeto', 'prostitut',
             'shut up', 'scum', 'thug', 'filth', 'rapist', 'bagger', 'communist', 'racist', 'hate',
             'sodomize', 'mother f ', 'lowly', 'cancer', 'spews', r'\bhag\b', 'tr0ll', r'\bha\b',
-			'haha', 'cry', 'lover', 'loving', 'sick', 'smell', 'freak', 'anus', r'\bbasement']
+			'haha', 'cry', 'lover', 'loving', 'sick', 'smell', 'freak', 'anus', r'\bbasement', 'kkk']
     obscene = ['jack off', 'jizz', 'penis', 'semen', 'vagina', 'ejaculate', 'testicle', 'vajay',
 			   'piss', 'pecker', 'urinate']
     wiki = ['wiki', 'jimbo', 'talk', 'page', 'edit', 'signed', 'block', 'edit', 'contribute', 'bot',
