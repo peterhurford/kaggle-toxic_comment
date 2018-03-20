@@ -8,7 +8,7 @@ np.random.seed(42)
 from keras.models import Model
 from keras.layers import Input, Dense, Embedding, SpatialDropout1D, concatenate
 from keras.layers import GRU, Bidirectional, GlobalAveragePooling1D, GlobalMaxPooling1D
-from keras.preprocessing import text, sequence
+from keras.preprocessing import sequence
 from keras.preprocessing.text import Tokenizer
 from keras.callbacks import Callback
 
