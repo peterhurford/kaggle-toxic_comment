@@ -13,8 +13,8 @@ from sklearn.preprocessing import OneHotEncoder
 
 from sklearn.model_selection import StratifiedKFold
 
-#import wordbatch
-#from wordbatch.models import FM_FTRL
+import wordbatch
+from wordbatch.models import FM_FTRL
 
 
 from cv import run_cv_model
