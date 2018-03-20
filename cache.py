@@ -59,18 +59,22 @@ def load_cache(key):
             test = None
         elif is_in_cache(key) == 'csr':
             train_path = 'cache/train_' + key + '.npcsr.npz'
-            test_path = 'cache/test_' + key + '.npcsr.npz'
             train = load_sparse_csr(train_path)
-            test = load_sparse_csr(test_path)
-            print('Train shape: {}'.format(train.shape))
-            print('Test shape: {}'.format(test.shape))
+            try:
+                test_path = 'cache/test_' + key + '.npcsr.npz'
+                test = load_sparse_csr(test_path)
+                print('Train shape: {}'.format(train.shape))
+                print('Test shape: {}'.format(test.shape))
+            except IOError:
+                test = None
+                print('Train shape: {}'.format(train.shape))
         else:
             train_path = 'cache/train_' + key + '.csv'
             test_path = 'cache/test_' + key + '.csv'
             train = pd.read_csv(train_path)
             try:
                 test = pd.read_csv(test_path)
-            except OSError:
+            except IOError:
                 test = None
             if 'comment_text' in train.columns:
                 print_step('Filling missing')
@@ -97,9 +101,10 @@ def save_in_cache(key, train, test):
         np.save(train_path, train)
     elif is_csr_matrix(train):
         train_path = 'cache/train_' + key + '.npcsr'
-        test_path = 'cache/test_' + key + '.npcsr'
         save_sparse_csr(train_path, train)
-        save_sparse_csr(test_path, test)
+        if test is not None:
+            test_path = 'cache/test_' + key + '.npcsr'
+            save_sparse_csr(test_path, test)
     else:
         train_path = 'cache/train_' + key + '.csv'
         train.to_csv(train_path, index=False)
