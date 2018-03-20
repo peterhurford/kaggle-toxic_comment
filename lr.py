@@ -104,6 +104,8 @@ def runNBLR(train_X, train_y, test_X, test_y, test_X2, label, dev_index, val_ind
 print('~~~~~~~~~~~~~~~~~~~')
 print_step('Importing Data')
 train, test = get_data()
+train['non_toxic'] = train[['toxic', 'severe_toxic', 'obscene', 'insult', 'threat', 'identity_hate']].sum(axis=1).apply(lambda x: 0 if x > 1 else 1)
+save_in_cache('extra_label', train, test)
 
 
 if not is_in_cache('cleaned'):
@@ -187,6 +189,9 @@ train, test = run_cv_model(label='tfidf_word_lr_sag',
                            model_fn=runSagLR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 # toxic CV scores : [0.9757770727127603, 0.9754469511129109, 0.9748022104865504, 0.9727014869411932, 0.9753668774625703]
 # toxic mean CV : 0.9748189197431969
@@ -209,6 +214,9 @@ train, test = run_cv_model(label='tfidf_word_lr_l1',
                            model_fn=runL1LR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 
 print('~~~~~~~~~~~~~~~~~~~')
@@ -218,6 +226,9 @@ train, test = run_cv_model(label='tfidf_word_lr_l2',
                            model_fn=runL2LR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 
 print('~~~~~~~~~~~~~~~~~~')
@@ -227,6 +238,9 @@ train, test = run_cv_model(label='tfidf_word_nblr',
                            model_fn=runNBLR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 # toxic CV scores : [0.9772131130009183, 0.9775146406777059, 0.9769621008062486, 0.9753843107161422, 0.9772501917811696]
 # toxic mean CV : 0.976864871396437
@@ -250,6 +264,9 @@ train, test = run_cv_model(label='tfidf_word_nostop_lr_sag',
                            model_fn=runSagLR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 # toxic CV scores : [0.9755463841013073, 0.9753979313406889, 0.9748562847831383, 0.9726387684610107, 0.9752481878960215]
 # toxic mean CV : 0.9747375113164335
@@ -272,6 +289,9 @@ train, test = run_cv_model(label='tfidf_word_nostop_lr_l1',
                            model_fn=runL1LR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 
 print('~~~~~~~~~~~~~~~~~~~~~~~~~~~')
@@ -281,6 +301,9 @@ train, test = run_cv_model(label='tfidf_word_nostop_lr_l2',
                            model_fn=runL2LR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 
 
@@ -291,6 +314,9 @@ train, test = run_cv_model(label='tfidf_word_nostop_nblr',
                            model_fn=runNBLR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 # toxic CV scores : [0.9768566292540937, 0.9774012279345319, 0.9770977227221203, 0.9753824074096629, 0.9772751581819247]
 # toxic mean CV : 0.9768026291004668
@@ -314,6 +340,9 @@ train, test = run_cv_model(label='tfidf_char_lr_sag',
                            model_fn=runSagLR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 # toxic CV scores : [0.9784009673265261, 0.9812385913192474, 0.9795732673580841, 0.9770499644574512, 0.9796899916465122]
 # toxic mean CV : 0.9791905564215643
@@ -336,6 +365,9 @@ train, test = run_cv_model(label='tfidf_char_lr_l1',
                            model_fn=runL1LR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 
 print('~~~~~~~~~~~~~~~~~~~')
@@ -345,6 +377,9 @@ train, test = run_cv_model(label='tfidf_char_lr_l2',
                            model_fn=runL2LR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 
 print('~~~~~~~~~~~~~~~~~~')
@@ -354,6 +389,9 @@ train, test = run_cv_model(label='tfidf_char_nblr',
                            model_fn=runNBLR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 # toxic CV scores : [0.9807326522118874, 0.9826694203535984, 0.9809316730534118, 0.9790661098211237, 0.9824618401087325]
 # toxic mean CV : 0.9811723391097507
@@ -377,6 +415,9 @@ train, test = run_cv_model(label='tfidf_union_lr_sag',
                            model_fn=runSagLR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 # toxic CV scores : [0.9790060562019675, 0.9809792294830445, 0.9788201584400681, 0.9767082416399386, 0.9801075300500608]
 # toxic mean CV : 0.9791242431630159
@@ -399,6 +440,9 @@ train, test = run_cv_model(label='tfidf_union_lr_l1',
                            model_fn=runL1LR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 
 print('~~~~~~~~~~~~~~~~~~~~')
@@ -408,6 +452,9 @@ train, test = run_cv_model(label='tfidf_union_lr_l2',
                            model_fn=runL2LR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 
 print('~~~~~~~~~~~~~~~~~~~')
@@ -417,6 +464,9 @@ train, test = run_cv_model(label='tfidf_union_nblr',
                            model_fn=runNBLR,
                            train=train,
                            test=test,
+                           train_key='extra_label',
+                           targets=['toxic', 'severe_toxic', 'obscene', 'insult',
+                                    'threat', 'identity_hate', 'non_toxic'],
                            kf=kf)
 # toxic CV scores : [0.9791019659296382, 0.9816840402316044, 0.9790436496717447, 0.9770628344345982, 0.9804720757663966]
 # toxic mean CV : 0.9794729132067964
