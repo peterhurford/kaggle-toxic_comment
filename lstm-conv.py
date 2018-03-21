@@ -1,4 +1,4 @@
-# Following https://www.kaggle.com/eashish/bidirectional-gru-with-convolution/notebook
+# Following https://www.kaggle.com/fizzbuzz/bi-lstm-conv-layer-lb-score-0-9840/
 from pprint import pprint
 
 import pandas as pd
