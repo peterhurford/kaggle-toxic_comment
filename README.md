@@ -1,6 +1,8 @@
 ## Kaggle Jigsaw Toxic Comment, 34th / 4551 (Top 1%) Solution
 
-See a detailed methodology at URL.
+See a detailed methodology at https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/discussion/52645.
+
+~~
 
 To reproduce the final solution, download data from https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/data and put it in `data` folder, make a `cache` and `submit` folder. Download Neptune models from https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/discussion/51836. Zafar's cleaned data comes from https://www.kaggle.com/fizzbuzz/toxic-data-preprocessing/code.
 
