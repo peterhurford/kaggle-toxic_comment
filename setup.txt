@@ -1,0 +1,40 @@
+1.) Start tmux session
+2.) sudo apt-get update && sudo apt-get upgrade && sudo apt-get -y install python python-pip htop unzip
+
+3.) The ~ doesn't have enough space so I've been going really hacky and using /dev. There is almost certainly a better way.
+
+cd /dev
+sudo mkdir kaggle
+cd kaggle
+sudo mkdir data
+sudo chown ubuntu data
+sudo chmod 777 data
+sudo mkdir cache
+sudo chown ubuntu cache
+sudo chmod 777 cache
+sudo mkdir submit
+sudo chown ubuntu submit
+sudo chmod 777 submit
+
+4.) scp up python files, requirements.txt and data/train.csv + data/test.csv to ~
+
+5.) Get the embeddings:
+
+cd cache
+sudo mkdir crawl
+wget https://s3-us-west-1.amazonaws.com/fasttext-vectors/crawl-300d-2M.vec.zip
+sudo unzip crawl-300d-2M.vec.zip -d crawl
+
+6.) Get the files in the right place
+
+sudo mv ~/train.csv data/.
+sudo mv ~/test.csv data/.
+sudo cp ~/*.py .
+sudo cp ~/*.txt .
+
+7.) Install Python stuff
+
+pip install Cython numpy
+pip install git+git://github.com/anttttti/Wordbatch.git
+pip install -r requirements.txt
+

@@ -4,7 +4,7 @@ See a detailed methodology at https://www.kaggle.com/c/jigsaw-toxic-comment-clas
 
 ~~
 
-To reproduce the final solution, download data from https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/data and put it in `data` folder, make a `cache` and `submit` folder. Download Neptune models from https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/discussion/51836. Zafar's cleaned data comes from https://www.kaggle.com/fizzbuzz/toxic-data-preprocessing/code.
+To reproduce the final solution, download data from https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/data and put it in `data` folder, make a `cache` and `submit` folder. Download Neptune models from https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/discussion/51836. Zafar's cleaned data comes from https://www.kaggle.com/fizzbuzz/toxic-data-preprocessing/code. You also will have to download embedding files. (See more `setup.txt`.)
 
  Run `pip install -r requirements.txt`, and then run all the models:
 
